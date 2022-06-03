@@ -3,8 +3,9 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from src.crud.user import ACCESS_TOKEN_EXPIRE_MINUTES, UserCRUD
+from src.crud.user import UserCRUD
 from src.schemas.user import Token, UpdateUser, User, UserCreate
+from src.settings.settings import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
 
@@ -48,7 +49,11 @@ async def create_user(user: UserCreate):
 
 
 @router.get("/", response_model=List[User])
-async def list_users(skip: int = 0, limit: int = 100):
+async def list_users(
+    skip: int = 0,
+    limit: int = 100,
+    access=Depends(UserCRUD.get_current_active_user),
+):
     return await UserCRUD.list(skip=skip, limit=limit)
 
 
@@ -56,12 +61,15 @@ async def list_users(skip: int = 0, limit: int = 100):
 async def patch_users(
     user: UpdateUser,
     id: int,
-    # access=Depends(UserCRUD.get_current_active_user),
+    access=Depends(UserCRUD.get_current_active_user),
 ):
     return await UserCRUD.user_patch(id, user)
 
 
 @router.delete("/{id}")
-async def delete_users(id: int):
+async def delete_users(
+    id: int,
+    access=Depends(UserCRUD.get_current_active_user),
+):
     await UserCRUD.delete(id)
     return Response(status_code=status.HTTP_200_OK)

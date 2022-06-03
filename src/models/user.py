@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from src.database import metadata
+from src.settings.database import metadata
 
 UserModel = sa.Table(
     "UserModel",

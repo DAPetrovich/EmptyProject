@@ -2,20 +2,11 @@ from datetime import datetime, timedelta
 from typing import Union
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
-from src.database import database
 from src.models.user import UserModel
 from src.schemas.user import TokenData, UpdateUser, User, UserCreate
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 300
+from src.settings.database import db
+from src.settings.settings import ALGORITHM, SECRET_KEY, oauth2_scheme, pwd_context
 
 
 class UserCRUD:
@@ -44,7 +35,7 @@ class UserCRUD:
         return encoded_jwt
 
     async def get_user(username: str):
-        return await database.fetch_one(
+        return await db.fetch_one(
             UserModel.select().where(UserModel.c.username == username)
         )
 
@@ -78,26 +69,24 @@ class UserCRUD:
         return current_user
 
     async def get_by_email(email: str):
-        return await database.fetch_one(
-            UserModel.select().where(UserModel.c.email == email)
-        )
+        return await db.fetch_one(UserModel.select().where(UserModel.c.email == email))
 
     async def list(skip: int = 0, limit: int = 100):
-        results = await database.fetch_all(UserModel.select().offset(skip).limit(limit))
+        results = await db.fetch_all(UserModel.select().offset(skip).limit(limit))
         return [dict(result) for result in results]
 
     async def create(user: UserCreate):
         user.password = pwd_context.hash(user.password)
-        user_id = await database.execute(UserModel.insert().values(**user.dict()))
+        user_id = await db.execute(UserModel.insert().values(**user.dict()))
         return User(**user.dict(), id=user_id)
 
     async def user_patch(id: int, user: UpdateUser):
-        await database.execute(
+        await db.execute(
             UserModel.update().where(UserModel.c.id == id).values(**user.dict())
         )
 
-        return await database.fetch_one(UserModel.select().where(UserModel.c.id == id))
+        return await db.fetch_one(UserModel.select().where(UserModel.c.id == id))
 
     async def delete(id: int):
-        await database.execute(UserModel.delete().where(UserModel.c.id == id))
+        await db.execute(UserModel.delete().where(UserModel.c.id == id))
         return None
