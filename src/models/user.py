@@ -1,15 +1,14 @@
 import sqlalchemy as sa
-from sqlalchemy import Boolean, Integer, String
-from src.database import Base
+from src.database import metadata
 
-
-class UserModel(Base):
-    __tablename__ = "user"
-
-    id = sa.Column(Integer, primary_key=True, index=True)
-    username = sa.Column(String)
-    email = sa.Column(String, unique=True, index=True)
-    full_name = sa.Column(String)
-    disabled = sa.Column(Boolean, default=True)
-    password = sa.Column(String)
-    is_active = sa.Column(Boolean, default=True)
+UserModel = sa.Table(
+    "UserModel",
+    metadata,
+    sa.Column("id", sa.Integer, primary_key=True, index=True),
+    sa.Column("username", sa.String),
+    sa.Column("email", sa.String, unique=True, index=True),
+    sa.Column("full_name", sa.String),
+    sa.Column("disabled", sa.Boolean, default=True),
+    sa.Column("password", sa.String),
+    sa.Column("is_active", sa.Boolean, default=True),
+)

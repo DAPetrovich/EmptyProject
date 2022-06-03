@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from src.database import get_db
+from src.database import database
 from src.models.user import UserModel
 from src.schemas.user import TokenData, UpdateUser, User, UserCreate
 
@@ -23,8 +23,8 @@ class UserCRUD:
     def verify_password(plain_password, hashed_password):
         return pwd_context.verify(plain_password, hashed_password)
 
-    def authenticate_user(db, username: str, password: str):
-        user = UserCRUD.get_user(db, username)
+    async def authenticate_user(username: str, password: str):
+        user = await UserCRUD.get_user(username)
         if not user:
             return False
         if not UserCRUD.verify_password(password, user.password):
@@ -44,11 +44,12 @@ class UserCRUD:
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
-    def get_user(db: Session, username: str):
-        return db.query(UserModel).filter(UserModel.username == username).first()
+    async def get_user(username: str):
+        return await database.fetch_one(
+            UserModel.select().where(UserModel.c.username == username)
+        )
 
-    def get_current_user(
-        db: Session = Depends(get_db),
+    async def get_current_user(
         token: str = Depends(oauth2_scheme),
     ):
         credentials_exception = HTTPException(
@@ -65,7 +66,7 @@ class UserCRUD:
         except JWTError:
             raise credentials_exception
 
-        user = UserCRUD.get_user(db, username=token_data.username)
+        user = await UserCRUD.get_user(username=token_data.username)
         if user is None:
             raise credentials_exception
         return user
@@ -77,26 +78,27 @@ class UserCRUD:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user
 
-    def get_by_email(db: Session, email: str):
-        return db.query(UserModel).filter(UserModel.email == email).first()
+    async def get_by_email(email: str):
+        return await database.fetch_one(
+            UserModel.select().where(UserModel.c.email == email)
+        )
 
-    def list(db: Session, skip: int = 0, limit: int = 100):
-        return db.query(UserModel).offset(skip).limit(limit).all()
+    async def list(skip: int = 0, limit: int = 100):
+        results = await database.fetch_all(UserModel.select().offset(skip).limit(limit))
+        return [dict(result) for result in results]
 
-    def create(db: Session, user: UserCreate):
+    async def create(user: UserCreate):
         user.password = pwd_context.hash(user.password)
-        db_user = UserModel(**user.dict())
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
+        user_id = await database.execute(UserModel.insert().values(**user.dict()))
+        return User(**user.dict(), id=user_id)
 
-    def user_patch(db: Session, id: int, user: UpdateUser):
-        db.query(UserModel).filter(UserModel.id == id).update(user.dict())
-        db.commit()
-        return db.query(UserModel).filter(UserModel.id == id).first()
+    async def user_patch(id: int, user: UpdateUser):
+        await database.execute(
+            UserModel.update().where(UserModel.c.id == id).values(**user.dict())
+        )
 
-    def delete(db: Session, id: int):
-        db.query(UserModel).filter(UserModel.id == id).delete()
-        db.commit()
+        return await database.fetch_one(UserModel.select().where(UserModel.c.id == id))
+
+    async def delete(id: int):
+        await database.execute(UserModel.delete().where(UserModel.c.id == id))
         return None

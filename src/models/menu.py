@@ -1,24 +1,26 @@
 import sqlalchemy as sa
-from src.database import Base
+from src.database import metadata
+
+MenuModel = sa.Table(
+    "menu",
+    metadata,
+    sa.Column("id", sa.Integer, primary_key=True, index=True),
+    sa.Column("title", sa.String),
+    sa.Column("sostav", sa.Integer, sa.ForeignKey("sostav.id")),
+)
 
 
-class MenuModel(Base):
-    __tablename__ = "menu"
-
-    id = sa.Column(sa.Integer, primary_key=True, index=True)
-    title = sa.Column(sa.String)
-    sostav = sa.Column(sa.Integer, sa.ForeignKey("sostav.id"))
-
-
-class SostavModel(Base):
-    __tablename__ = "sostav"
-
-    id = sa.Column(sa.Integer, primary_key=True, index=True)
-    ingredients = sa.Column(sa.Integer, sa.ForeignKey("ingredient.id"))
+SostavModel = sa.Table(
+    "sostav",
+    metadata,
+    sa.Column("id", sa.Integer, primary_key=True, index=True),
+    sa.Column("ingredients", sa.Integer, sa.ForeignKey("ingredient.id")),
+)
 
 
-class IngredietModel(Base):
-    __tablename__ = "ingredient"
-
-    id = sa.Column(sa.Integer, primary_key=True, index=True)
-    title = sa.Column(sa.String)
+IngredietModel = sa.Table(
+    "ingredient",
+    metadata,
+    sa.Column("id", sa.Integer, primary_key=True, index=True),
+    sa.Column("title", sa.String),
+)

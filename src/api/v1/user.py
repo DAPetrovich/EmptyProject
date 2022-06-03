@@ -3,21 +3,17 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 from src.crud.user import ACCESS_TOKEN_EXPIRE_MINUTES, UserCRUD
-from src.database import get_db
 from src.schemas.user import Token, UpdateUser, User, UserCreate
 
 router = APIRouter()
 
 
 @router.post("/token", response_model=Token)
-def login_for_access_token(
-    db: Session = Depends(get_db),
+async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ):
-    user = UserCRUD.authenticate_user(
-        db,
+    user = await UserCRUD.authenticate_user(
         form_data.username,
         form_data.password,
     )
@@ -43,40 +39,29 @@ def read_users_me(
 
 
 @router.post("/", response_model=User)
-def create_user(
-    user: UserCreate,
-    db: Session = Depends(get_db),
-):
+async def create_user(user: UserCreate):
     """Создаём пользователя. Если email был то возвращаем ошибку"""
-    db_user = UserCRUD.get_by_email(db, user.email)
+    db_user = await UserCRUD.get_by_email(user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return UserCRUD.create(db, user)
+    return await UserCRUD.create(user)
 
 
 @router.get("/", response_model=List[User])
-def list_users(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-):
-    return UserCRUD.list(db, skip=skip, limit=limit)
+async def list_users(skip: int = 0, limit: int = 100):
+    return await UserCRUD.list(skip=skip, limit=limit)
 
 
 @router.patch("/{id}", response_model=User)
-def patch_users(
+async def patch_users(
     user: UpdateUser,
     id: int,
-    db: Session = Depends(get_db),
-    access=Depends(UserCRUD.get_current_active_user),
+    # access=Depends(UserCRUD.get_current_active_user),
 ):
-    return UserCRUD.user_patch(db, id, user)
+    return await UserCRUD.user_patch(id, user)
 
 
 @router.delete("/{id}")
-def delete_users(
-    id: int,
-    db: Session = Depends(get_db),
-):
-    UserCRUD.delete(db, id)
+async def delete_users(id: int):
+    await UserCRUD.delete(id)
     return Response(status_code=status.HTTP_200_OK)

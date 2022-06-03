@@ -10,6 +10,7 @@ class User(BaseModel):
     full_name: Union[str, None] = None
     disabled: Union[bool, None] = None
     is_active: Union[bool, None] = None
+    password: str
 
     class Config:
         orm_mode = True
