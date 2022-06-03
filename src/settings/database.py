@@ -1,7 +1,6 @@
 import databases
 from sqlalchemy import MetaData, create_engine
-
-DATABASE_URL = "postgresql://postgres:postgres@localhost/postgresql"
+from src.settings.settings import DATABASE_URL
 
 db = databases.Database(DATABASE_URL)
 
