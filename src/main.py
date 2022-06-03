@@ -1,11 +1,9 @@
 from fastapi import FastAPI
 
 from src.api.routes import api_router
-from src.models import menu, user
-from src.settings.database import db, engine
+from src.settings.database import db, engine, metadata
 
-menu.metadata.create_all(bind=engine)
-user.metadata.create_all(bind=engine)
+metadata.create_all(bind=engine)
 
 app = FastAPI()
 
