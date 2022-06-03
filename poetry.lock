@@ -30,6 +30,36 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotli", "cchardet"]
 
 [[package]]
+name = "aiohttp-sqlalchemy"
+version = "0.34.0"
+description = "SQLAlchemy 1.4 / 2.0 support for aiohttp."
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+aiohttp = ">=3.7.4.post0,<4.0.0"
+aiohttp-things = ">=0.13.0"
+SQLAlchemy = ">=1.4.22,<2.0.0"
+sqlalchemy-things = ">=0.10.1"
+
+[package.extras]
+mysql = ["aiomysql (>=0.0.22)"]
+sqlite = ["aiosqlite (>=0.17.0)"]
+postgresql = ["asyncpg (>=0.25.0)"]
+
+[[package]]
+name = "aiohttp-things"
+version = "0.14.0"
+description = "Modest utility collection for development with AIOHTTP framework."
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+aiohttp = ">=3.7.4.post0,<4.0.0"
+
+[[package]]
 name = "aiosignal"
 version = "1.2.0"
 description = "aiosignal: a list of registered asynchronous callbacks"
@@ -546,6 +576,22 @@ pymysql = ["pymysql (<1)", "pymysql"]
 sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
+name = "sqlalchemy-things"
+version = "0.10.2"
+description = "Utility collection for development with SQLalchemy ORM."
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+sqlalchemy = ">=1.4.21,<2.0.0"
+
+[package.extras]
+mysql = ["aiomysql (>=0.0.21)"]
+sqlite = ["aiosqlite (>=0.17.0)"]
+postgresql = ["asyncpg (>=0.23.0)"]
+
+[[package]]
 name = "starlette"
 version = "0.19.1"
 description = "The little ASGI library that shines."
@@ -607,7 +653,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9"
-content-hash = "77da7922b6170c3d7d214bc1a443c77560febd654f75cd746d40097522e43794"
+content-hash = "8a96eabb62a9a65d086e7959ee0f404df5785000799548c87ff2ec0debe4846e"
 
 [metadata.files]
 aiodns = [
@@ -687,6 +733,14 @@ aiohttp = [
     {file = "aiohttp-3.8.1-cp39-cp39-win32.whl", hash = "sha256:7187a76598bdb895af0adbd2fb7474d7f6025d170bc0a1130242da817ce9e7d1"},
     {file = "aiohttp-3.8.1-cp39-cp39-win_amd64.whl", hash = "sha256:1c182cb873bc91b411e184dab7a2b664d4fea2743df0e4d57402f7f3fa644bac"},
     {file = "aiohttp-3.8.1.tar.gz", hash = "sha256:fc5471e1a54de15ef71c1bc6ebe80d4dc681ea600e68bfd1cbce40427f0b7578"},
+]
+aiohttp-sqlalchemy = [
+    {file = "aiohttp-sqlalchemy-0.34.0.tar.gz", hash = "sha256:e39bf603e519a551d085ea34de61ecb14386f6f56b59798d3b50b1419c5fd5a3"},
+    {file = "aiohttp_sqlalchemy-0.34.0-py3-none-any.whl", hash = "sha256:7a40f37464da44ca8d32dbc4aad7ca7ed47ab9d51384c480dea349d89cf80372"},
+]
+aiohttp-things = [
+    {file = "aiohttp-things-0.14.0.tar.gz", hash = "sha256:7691fa92cf86767ab64352d45961c9e5012297716f93a0f3f189ae7d5aa9fb92"},
+    {file = "aiohttp_things-0.14.0-py3-none-any.whl", hash = "sha256:a421bc734826c0034373809ea3a6ef245ea7806178cedefe487a7d7302fd8de0"},
 ]
 aiosignal = [
     {file = "aiosignal-1.2.0-py3-none-any.whl", hash = "sha256:26e62109036cd181df6e6ad646f91f0dcfd05fe16d0cb924138ff2ab75d64e3a"},
@@ -1308,6 +1362,10 @@ sqlalchemy = [
     {file = "SQLAlchemy-1.4.36-cp39-cp39-win32.whl", hash = "sha256:e12532c4d3f614678623da5d852f038ace1f01869b89f003ed6fe8c793f0c6a3"},
     {file = "SQLAlchemy-1.4.36-cp39-cp39-win_amd64.whl", hash = "sha256:cb441ca461bf97d00877b607f132772644b623518b39ced54da433215adce691"},
     {file = "SQLAlchemy-1.4.36.tar.gz", hash = "sha256:64678ac321d64a45901ef2e24725ec5e783f1f4a588305e196431447e7ace243"},
+]
+sqlalchemy-things = [
+    {file = "sqlalchemy-things-0.10.2.tar.gz", hash = "sha256:1e054a32e343228685c81f9287e6aa180f5ebaa63ef87e83a1b9c825749ef98a"},
+    {file = "sqlalchemy_things-0.10.2-py3-none-any.whl", hash = "sha256:d5ebe591e2558d7873bc604416a47e2a345eb437570eaa6ded5ed81c3a763574"},
 ]
 starlette = [
     {file = "starlette-0.19.1-py3-none-any.whl", hash = "sha256:5a60c5c2d051f3a8eb546136aa0c9399773a689595e099e0877704d5888279bf"},
