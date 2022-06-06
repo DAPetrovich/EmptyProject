@@ -6,7 +6,6 @@ MenuModel = sa.Table(
     metadata,
     sa.Column("id", sa.Integer, primary_key=True, index=True),
     sa.Column("title", sa.String),
-    sa.Column("sostav", sa.Integer, sa.ForeignKey("sostav.id")),
 )
 
 
@@ -15,6 +14,8 @@ SostavModel = sa.Table(
     metadata,
     sa.Column("id", sa.Integer, primary_key=True, index=True),
     sa.Column("ingredients", sa.Integer, sa.ForeignKey("ingredient.id")),
+    sa.Column("menu", sa.Integer, sa.ForeignKey("menu.id")),
+    sa.Column("amount", sa.Integer, default=0),
 )
 
 

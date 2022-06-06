@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from src.models.menu import MenuModel
 from src.schemas.menu import MenuCreateSchema, MenuSchema
 from src.settings.database import db

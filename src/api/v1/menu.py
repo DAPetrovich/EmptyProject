@@ -1,9 +1,7 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Response, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Response, status
 from src.crud.menu import MenuCRUD
-from src.crud.user import UserCRUD
 from src.schemas.menu import MenuCreateSchema, MenuSchema
 
 router = APIRouter()
