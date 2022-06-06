@@ -15,7 +15,7 @@ SostavModel = sa.Table(
     sa.Column("id", sa.Integer, primary_key=True, index=True),
     sa.Column("ingredients", sa.Integer, sa.ForeignKey("ingredient.id")),
     sa.Column("menu", sa.Integer, sa.ForeignKey("menu.id")),
-    sa.Column("amount", sa.Integer, default=0),
+    sa.Column("amount", sa.DECIMAL(precision=5, scale=2), default=0),
 )
 
 
