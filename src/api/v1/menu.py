@@ -10,21 +10,16 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[MenuSchema])
-def list_menu():
-    return MenuCRUD.list()
+async def list_menu(skip: int = 0, limit: int = 100):
+    return await MenuCRUD.list(skip=skip, limit=limit)
 
 
 @router.post("/", response_model=MenuSchema)
-def menu_create(
-    data_menu: MenuCreateSchema,
-    # access=Depends(UserCRUD.get_current_active_user),
-):
-    return MenuCRUD.create(data_menu)
+async def menu_create(data_menu: MenuCreateSchema):
+    return await MenuCRUD.create(data_menu)
 
 
 @router.delete("/{id}")
-def menu_delete(
-    id: int,
-):
-    MenuCRUD.delete(id)
+async def menu_delete(id: int):
+    await MenuCRUD.delete(id)
     return Response(status_code=status.HTTP_200_OK)

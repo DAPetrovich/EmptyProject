@@ -1,20 +1,18 @@
 from sqlalchemy.orm import Session
 from src.models.menu import MenuModel
-from src.schemas.menu import MenuCreateSchema
+from src.schemas.menu import MenuCreateSchema, MenuSchema
+from src.settings.database import db
 
 
 class MenuCRUD:
-    def create(db: Session, menu: MenuCreateSchema):
-        db_menu = MenuModel(**menu.dict())
-        db.add(db_menu)
-        db.commit()
-        db.refresh(db_menu)
-        return db_menu
+    async def create(menu: MenuCreateSchema):
+        menu_id = await db.execute(MenuModel.insert().values(**menu.dict()))
+        return MenuSchema(**menu.dict(), id=menu_id)
 
-    def list(db: Session):
-        return db.query(MenuModel).all()
+    async def list(skip: int = 0, limit: int = 100):
+        results = await db.fetch_all(MenuModel.select().offset(skip).limit(limit))
+        return [dict(result) for result in results]
 
-    def delete(db: Session, id: int):
-        db.query(MenuModel).filter(MenuModel.id == id).delete()
-        db.commit()
+    async def delete(id: int):
+        await db.execute(MenuModel.delete().where(MenuModel.c.id == id))
         return None
