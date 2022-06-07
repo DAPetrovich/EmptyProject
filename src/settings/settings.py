@@ -10,4 +10,4 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost/postgresql"
+DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost/postgresql"

@@ -12,7 +12,7 @@ async def list(skip: int = 0, limit: int = 100):
     return await SostavCRUD.list(skip=skip, limit=limit)
 
 
-@router.post("/", response_model=SostavCreateSchema)
+@router.post("/", response_model=SostavSchema)
 async def create(data_menu: SostavCreateSchema):
     return await SostavCRUD.create(data_menu)
 

@@ -1,17 +1,25 @@
+from sqlalchemy import delete, select
 from src.models.menu import MenuModel
-from src.schemas.menu import MenuCreateSchema, MenuSchema
-from src.settings.database import db
+from src.schemas.menu import MenuCreateSchema
+from src.settings.database import async_session
 
 
 class MenuCRUD:
-    async def create(menu: MenuCreateSchema):
-        menu_id = await db.execute(MenuModel.insert().values(**menu.dict()))
-        return MenuSchema(**menu.dict(), id=menu_id)
+    async def create(data: MenuCreateSchema):
+        async with async_session() as session:
+            value = MenuModel(**data.dict())
+            session.add(value)
+            await session.commit()
+            await session.refresh(value)
+        return value
 
     async def list(skip: int = 0, limit: int = 100):
-        results = await db.fetch_all(MenuModel.select().offset(skip).limit(limit))
-        return [dict(result) for result in results]
+        async with async_session() as session:
+            results = await session.execute(select(MenuModel))
+        return results.scalars().all()
 
     async def delete(id: int):
-        await db.execute(MenuModel.delete().where(MenuModel.c.id == id))
+        async with async_session() as session:
+            await session.execute(delete(MenuModel).where(MenuModel.id == id))
+            await session.commit()
         return None

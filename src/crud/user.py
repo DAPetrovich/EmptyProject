@@ -3,9 +3,10 @@ from typing import Union
 
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
+from sqlalchemy import delete, select, update
 from src.models.user import UserModel
 from src.schemas.user import TokenData, UpdateUser, User, UserCreate
-from src.settings.database import db
+from src.settings.database import async_session
 from src.settings.settings import ALGORITHM, SECRET_KEY, oauth2_scheme, pwd_context
 
 
@@ -17,14 +18,12 @@ class UserCRUD:
         user = await UserCRUD.get_user(username)
         if not user:
             return False
+
         if not UserCRUD.verify_password(password, user.password):
             return False
         return user
 
-    def create_access_token(
-        data: dict,
-        expires_delta: Union[timedelta, None] = None,
-    ):
+    def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
@@ -35,9 +34,11 @@ class UserCRUD:
         return encoded_jwt
 
     async def get_user(username: str):
-        return await db.fetch_one(
-            UserModel.select().where(UserModel.c.username == username)
-        )
+        async with async_session() as session:
+            results = await session.execute(
+                select(UserModel).where(UserModel.username == username)
+            )
+        return results.scalars().first()
 
     async def get_current_user(
         token: str = Depends(oauth2_scheme),
@@ -69,24 +70,38 @@ class UserCRUD:
         return current_user
 
     async def get_by_email(email: str):
-        return await db.fetch_one(UserModel.select().where(UserModel.c.email == email))
+        async with async_session() as session:
+            results = await session.execute(
+                select(UserModel).where(UserModel.email == email)
+            )
+        return results.scalars().first()
 
     async def list(skip: int = 0, limit: int = 100):
-        results = await db.fetch_all(UserModel.select().offset(skip).limit(limit))
-        return [dict(result) for result in results]
+        async with async_session() as session:
+            results = await session.execute(select(UserModel).offset(skip).limit(limit))
+        return results.scalars().all()
 
     async def create(user: UserCreate):
-        user.password = pwd_context.hash(user.password)
-        user_id = await db.execute(UserModel.insert().values(**user.dict()))
-        return User(**user.dict(), id=user_id)
+        async with async_session() as session:
+            user.password = pwd_context.hash(user.password)
+            value = UserModel(**user.dict())
+            session.add(value)
+            await session.commit()
+            await session.refresh(value)
+        return value
 
     async def user_patch(id: int, user: UpdateUser):
-        await db.execute(
-            UserModel.update().where(UserModel.c.id == id).values(**user.dict())
-        )
+        async with async_session() as session:
+            await session.execute(
+                update(UserModel).where(UserModel.id == id).values(**user.dict())
+            )
+            await session.commit()
+            results = await session.execute(select(UserModel).where(UserModel.id == id))
 
-        return await db.fetch_one(UserModel.select().where(UserModel.c.id == id))
+        return results.scalars().first()
 
     async def delete(id: int):
-        await db.execute(UserModel.delete().where(UserModel.c.id == id))
+        async with async_session() as session:
+            await session.execute(delete(UserModel).where(UserModel.id == id))
+            await session.commit()
         return None

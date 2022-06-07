@@ -1,17 +1,25 @@
+from sqlalchemy import delete, select
 from src.models.menu import SostavModel
-from src.schemas.sostav import SostavCreateSchema, SostavSchema
-from src.settings.database import db
+from src.schemas.sostav import SostavCreateSchema
+from src.settings.database import async_session
 
 
 class SostavCRUD:
     async def create(data: SostavCreateSchema):
-        menu_id = await db.execute(SostavModel.insert().values(**data.dict()))
-        return SostavSchema(**data.dict(), id=menu_id)
+        async with async_session() as session:
+            value = SostavModel(**data.dict())
+            session.add(value)
+            await session.commit()
+            await session.refresh(value)
+        return value
 
     async def list(skip: int = 0, limit: int = 100):
-        results = await db.fetch_all(SostavModel.select().offset(skip).limit(limit))
-        return [dict(result) for result in results]
+        async with async_session() as session:
+            results = await session.execute(select(SostavModel))
+        return results.scalars().all()
 
     async def delete(id: int):
-        await db.execute(SostavModel.delete().where(SostavModel.c.id == id))
+        async with async_session() as session:
+            await session.execute(delete(SostavModel).where(SostavModel.id == id))
+            await session.commit()
         return None

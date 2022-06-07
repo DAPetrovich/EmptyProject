@@ -1,17 +1,25 @@
+from sqlalchemy import delete, select
 from src.models.menu import IngredietModel
-from src.schemas.ingredient import IngredientCreateSchema, IngredientSchema
-from src.settings.database import db
+from src.schemas.ingredient import IngredientCreateSchema
+from src.settings.database import async_session
 
 
 class IngredientCRUD:
-    async def create(val: IngredientCreateSchema):
-        menu_id = await db.execute(IngredietModel.insert().values(**val.dict()))
-        return IngredientSchema(**val.dict(), id=menu_id)
+    async def create(data: IngredientCreateSchema):
+        async with async_session() as session:
+            value = IngredietModel(**data.dict())
+            session.add(value)
+            await session.commit()
+            await session.refresh(value)
+        return value
 
     async def list(skip: int = 0, limit: int = 100):
-        results = await db.fetch_all(IngredietModel.select().offset(skip).limit(limit))
-        return [dict(result) for result in results]
+        async with async_session() as session:
+            results = await session.execute(select(IngredietModel))
+        return results.scalars().all()
 
     async def delete(id: int):
-        await db.execute(IngredietModel.delete().where(IngredietModel.c.id == id))
+        async with async_session() as session:
+            await session.execute(delete(IngredietModel).where(IngredietModel.id == id))
+            await session.commit()
         return None
