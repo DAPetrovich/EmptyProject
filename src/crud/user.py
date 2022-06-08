@@ -38,6 +38,7 @@ class UserCRUD:
             results = await session.execute(
                 select(UserModel).where(UserModel.username == username)
             )
+            await session.commit()
         return results.scalars().first()
 
     async def get_current_user(
