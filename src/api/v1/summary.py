@@ -10,3 +10,8 @@ router = APIRouter()
 @router.get("/", response_model=List[SummarySchema])
 async def list(skip: int = 0, limit: int = 100):
     return await SummaryCRUD.list(skip=skip, limit=limit)
+
+
+@router.get("/temp", response_model=List[SummarySchema])
+async def list_temp(skip: int = 0, limit: int = 100):
+    return await SummaryCRUD.list_temp(skip=skip, limit=limit)
