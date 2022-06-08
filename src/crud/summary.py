@@ -39,4 +39,5 @@ class SummaryCRUD:
                         },
                     )
                 list_data.append(symmary)
+            await session.commit()
         return list_data
