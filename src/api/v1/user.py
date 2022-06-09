@@ -38,7 +38,10 @@ def read_users_me(
 
 
 @router.post("/", response_model=User)
-async def create_user(user: UserCreate):
+async def create_user(
+    user: UserCreate,
+    access=Depends(UserCRUD.get_current_active_user),
+):
     """Создаём пользователя. Если email был то возвращаем ошибку"""
     db_user = await UserCRUD.get_by_email(user.email)
     if db_user:
