@@ -4,8 +4,8 @@ from pydantic import BaseModel, condecimal
 
 
 class SostavCreateSchema(BaseModel):
-    ingredients: int
-    menu: int
+    ingredients_id: int
+    menu_id: int
     amount: Optional[condecimal(max_digits=5, decimal_places=2)]
 
     class Config:

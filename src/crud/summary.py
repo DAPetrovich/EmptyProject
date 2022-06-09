@@ -9,24 +9,24 @@ class SummaryCRUD:
     async def list(skip: int = 0, limit: int = 100):
         async with async_session() as session:
             results = await session.execute(sa.select(MenuModel))
-            data = results.scalars().all()
+            data = results.all()
             list_data = []
             for val in data:
                 symmary = {
-                    "id": val.id,
-                    "title": val.title,
+                    "id": val.MenuModel.id,
+                    "title": val.MenuModel.title,
                     "sostav": [],
                 }
                 subquery = await session.execute(
                     sa.select(SostavModel, IngredietModel)
                     .join(IngredietModel)
-                    .where(SostavModel.menu == val.id)
+                    .where(SostavModel.menu_id == val.MenuModel.id)
                 )
                 subquery_data = subquery.all()
                 for row in subquery_data:
                     symmary["sostav"].append(
                         {
-                            "ingredients": row.SostavModel.ingredients,
+                            "ingredients": row.SostavModel.ingredients_id,
                             "amount": row.SostavModel.amount,
                             "title": row.IngredietModel.title,
                         },
@@ -46,17 +46,16 @@ class SummaryCRUD:
             )
             results = await session.execute(query)
             data = results.all()
-            list_row = [dict(result) for result in data]
-            for row in list_row:
+            for row in data:
                 print(
-                    row["SostavModel"].id,
-                    row["SostavModel"].ingredients,
-                    row["SostavModel"].menu,
-                    row["SostavModel"].amount,
-                    row["MenuModel"].title,
-                    row["MenuModel"].id,
-                    row["IngredietModel"].title,
-                    row["IngredietModel"].id,
+                    row.SostavModel.id,
+                    row.SostavModel.ingredients_id,
+                    row.SostavModel.menu_id,
+                    row.SostavModel.amount,
+                    row.MenuModel.title,
+                    row.MenuModel.id,
+                    row.IngredietModel.title,
+                    row.IngredietModel.id,
                 )
 
             await session.commit()
