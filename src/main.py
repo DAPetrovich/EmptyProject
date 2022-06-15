@@ -25,7 +25,11 @@ async def security(request: Request, call_next):
         return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
 
 
-@app.post("/create_admin_for_test")
+@app.post(
+    "/create_admin_for_test",
+    tags=["Start"],
+    description="создаём пользователя для авторизации: username: admin, password: pass",
+)
 async def create_user():
     from sqlalchemy import insert
 
