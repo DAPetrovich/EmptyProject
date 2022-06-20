@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 
+[tool.black]
+line-length = 119
+
 [tool.poetry.dependencies]
 python = "3.9"
 fastapi = "^0.78.0"
@@ -24,6 +27,8 @@ aiodns = "^3.0.0"
 asyncpg = "^0.25.0"
 aiohttp-sqlalchemy = "^0.34.0"
 orjson = "^3.7.1"
+python-dotenv = "^0.20.0"
+requests = "^2.28.0"
 
 [tool.poetry.dev-dependencies]
 

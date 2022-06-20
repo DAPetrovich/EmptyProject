@@ -46,6 +46,8 @@ class SummaryCRUD:
             )
             results = await session.execute(query)
             data = results.all()
+            print("888888888888888888888888888888888888888888888")
+            print(data[0])
             for row in data:
                 print(
                     row.SostavModel.id,
